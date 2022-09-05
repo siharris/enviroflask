@@ -46,11 +46,14 @@ def add():
             
         #####
         ### 1) extract sensor and then put them into a database 
-        temperature = readings["temperature"]
-        humidity = readings["humidity"]
+        
         pressure = readings["pressure"]
-        lux = readings["lux"]
-        colour_temp = readings["colour_temperature"]
+        pm2_5 = readings["pm2_5"]
+        pm10 = readings["pm10"]
+        noise = readings["noise"]
+        humidity = readings["humidity"]
+        temperature = readings["temperature"]
+        pm1 = readings["pm1"]
         timestamp = getTimeStamp()
         ###
         dbConn = getConnection()
@@ -58,10 +61,26 @@ def add():
         ### 
         ### dbCursor.execute('''CREATE TABLE IF NOT EXISTS t_enviro
         ###     (timestamp INTEGER NOT NULL, temperature REAL NOT NULL, humidity REAL NOT NULL, pressure REAL NOT NULL, lux REAL NOT NULL, col_temp INTEGER NOT NULL, PRIMARY KEY(timestamp))''')
+        ###
+        ###
+        ###    dbCursor.execute('''CREATE TABLE IF NOT EXISTS t_enviro (
+        ###                timestamp INTEGER NOT NULL,
+        ###                pressure REAL NOT NULL,
+        ###                pm2_5 INTEGER NOT NULL,
+        ###                pm10 INTEGER NOT NULL,
+        ###                noise REAL NOT NULL,
+        ###                humidity REAL NOT NULL,
+        ###                temperature REAL NOT NULL,
+        ###                pm1 INTEGER NOT NULL,
+        ###                PRIMARY KEY(timestamp))''')
+        ###
+        ###
+
+
         try:        
             with dbConn: 
-                sql = ''' INSERT INTO t_enviro(timestamp,temperature,humidity,pressure,lux,col_temp) VALUES(?,?,?,?,?,?) '''
-                result = dbCursor.execute(sql,(timestamp,temperature,humidity,pressure,lux,colour_temp))
+                sql = ''' INSERT INTO t_enviro(timestamp,pressure,pm2_5,pm10,noise,humidity,temperature,pm1) VALUES(?,?,?,?,?,?,?,?) '''
+                result = dbCursor.execute(sql,(timestamp,pressure,pm2_5,pm10,noise,humidity,temperature,pm1))
                 app.logger.debug("Insert to DB executed result %s" %result)
 
         except:
