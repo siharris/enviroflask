@@ -53,7 +53,7 @@ if __name__ == "__main__":
     logging.debug('Creating EnviroDB %s ' %__file__)
     dbConn = getConnection()
     dbCursor = getConnection().cursor()
-    dbCursor.execute('''CREATE TABLE IF NOT EXISTS t_enviro (timestamp INTEGER NOT NULL, temperature REAL NOT NULL, humidity REAL NOT NULL, pressure REAL NOT NULL, lux REAL NOT NULL, col_temp INTEGER NOT NULL, PRIMARY KEY(timestamp)''')
+    dbCursor.execute('''CREATE TABLE IF NOT EXISTS t_enviro (timestamp INTEGER NOT NULL, temperature REAL NOT NULL, humidity REAL NOT NULL, pressure REAL NOT NULL, lux REAL NOT NULL, col_temp INTEGER NOT NULL, PRIMARY KEY(timestamp))''')
     logging.debug('Created DB complete')
 
 
