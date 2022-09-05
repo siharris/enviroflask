@@ -108,7 +108,7 @@ def getTimeStamp(timeStampString):
     ###
     ###
     timeStamp = datetime.datetime.strptime(timeStampString, "%Y-%m-%d %H:%M:%S").timestamp()
-    logging.debug('Current timestamp %s' %timeStamp)
+    app.logger.debug('Current timestamp %s' %timeStamp)
     return timeStamp
 
 def getTimeFromTimeStamp(timeStamp):
@@ -117,5 +117,5 @@ def getTimeFromTimeStamp(timeStamp):
     ###
     timeStamp2 = datetime.fromtimestamp(timeStamp)
     timeStamp2.strftime('%Y-%m-%d %H:%M:%S')
-    logging.debug('Returning normal time from timestamp %s' %timeStamp2)
+    app.logger.debug('Returning normal time from timestamp %s' %timeStamp2)
     return timeStamp2
