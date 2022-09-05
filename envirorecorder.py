@@ -1,29 +1,5 @@
 from flask import Flask
 from flask import current_app, flash, jsonify, make_response, redirect, request, url_for
-
-app = Flask(__name__)
-
-__author__ = 'Simon'
-
-
-@app.route("/posts/", methods=['POST'])
-def add():
-    content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
-        json = request.get_json()
-        print(json)
-        #####
-        ### 1) extract sensor and then put them into a database 
-        ### 2) rename service and setup 
-        ### 3) Setup and run next 2 ????? 
-    return jsonify({"success": "Successfully recorded reading."})
-
-
-
-
-
-
-
 from asyncio.log import logger
 from os.path import exists
 from datetime import datetime
@@ -33,65 +9,78 @@ from socket import create_connection
 import sys
 import platform
 from tempfile import gettempdir
-
-try:
-    ONWINDOWS = False
-    import gpiozero as gz 
-except ImportError:
-    print("WARNING : gpizero only works for pi based installs, all temperature readings on windows will output -1\n")
-    
 import os.path
 import sqlite3
-import psutil
+import sys
+
+
 import time
 import platform
 
+app = Flask(__name__)
+
+__author__ = 'Simon'
+
+
 DATABASE = "enviro.db"
 
-def initLogging():
-    #
-    try:
-        if __name__ == "__main__":
 
-            logging.basicConfig(format='%(asctime)-15s %(levelname)s:%(message)s', level=logging.DEBUG)
-
-            handler = logging.StreamHandler(sys.stdout)
-            handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter('%(asctime)-15s %(levelname)s:%(message)s')
-            handler.setFormatter(formatter)
-            logger = logging.getLogger(__name__)
-        else:
-            logger = logging.getLogger("jarvoscore")
-
-        return logging
-
-    except:
-
-        e = sys.exc_info()[0]
+logging.basicConfig(filename='envirorecorder.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 
-        recordTemp()
+
+@app.route("/posts/", methods=['POST'])
+def add():
+    content_type = request.headers.get('Content-Type')
+    if (content_type == 'application/json'):
+        app.logger.info('Processing sensor reading')
+        jsonResult = request.get_json()
+        app.logger.debug(jsonResult)
+        app.logger.debug(type(jsonResult))
+        for key in jsonResult:
+            app.logger.debug(key)
+        app.logger.debug("nickname %s" %jsonResult["nickname"])
+        readings = jsonResult["readings"]
+        for key,value in readings.items():
+            app.logger.debug("key %s value %s" %(key,value))
+            
+        #####
+        ### 1) extract sensor and then put them into a database 
+        temperature = readings["temperature"]
+        humidity = readings["humidity"]
+        pressure = readings["pressure"]
+        lux = readings["lux"]
+        colour_temp = readings["colour_temperature"]
+        timestamp = getTimeStamp()
+        ###
+        dbConn = getConnection()
+        dbCursor = getConnection().cursor()
+        ### 
+        ### dbCursor.execute('''CREATE TABLE IF NOT EXISTS t_enviro
+        ###     (timestamp INTEGER NOT NULL, temperature REAL NOT NULL, humidity REAL NOT NULL, pressure REAL NOT NULL, lux REAL NOT NULL, col_temp INTEGER NOT NULL, PRIMARY KEY(timestamp))''')
+        try:        
+            with dbConn: 
+                sql = ''' INSERT INTO t_enviro(timestamp,temperature,humidity,pressure,lux,col_temp) VALUES(?,?,?,?,?,?) '''
+                result = dbCursor.execute(sql,(timestamp,temperature,humidity,pressure,lux,colour_temp))
+                app.logger.debug("Insert to DB executed result %s" %result)
+
+        except:
+            app.logger.error("Unable to update database %s" %sys.exc_info()[0])
+            return jsonify({"failure": "Unable to record reading check server log"})
+
+    return jsonify({"success": "Successfully recorded reading."})
+
+
        
 def getDatabaseFilePath():
     return "%s//%s"% (os.getcwd() , DATABASE )
-
-def doesDatabaseExist():
-    ###
-    ###
-    ###
-  
-    file_exists = os.path.exists(getDatabaseFilePath())
-    if file_exists:
-        return True
-    else:
-        return False
         
         
 def getConnection():
     ###
     ###
     ###
-    conn = sqlite3.connect(getDatabaseFilePath()) 
+    conn = sqlite3.connect(getDatabaseFilePath(), isolation_level=None) 
     return conn
 
 def getTimeStamp():
@@ -111,76 +100,3 @@ def getTimeFromTimeStamp(timeStamp):
     timeStamp2.strftime('%Y-%m-%d %H:%M:%S')
     logging.debug('Returning normal time from timestamp %s' %timeStamp2)
     return timeStamp2
-
-def createTable():
-    ###
-    ###
-    ###
-    dbCursor = getConnection().cursor()
-    dbCursor.execute('''CREATE TABLE IF NOT EXISTS t_pitemp
-             (timestamp INTEGER NOT NULL, temperature REAL NOT NULL,PRIMARY KEY(timestamp))''')
-
-
-def getTempResultCount():
-    ###
-    ###
-    ###
-    dbCursor = getConnection().cursor()
-    dbCursor.execute('''SELECT COUNT(*) FROM t_pitemp AS count;''')
-    row = dbCursor.fetchone()
-    return row[0]
-
-
-def recordTemp():
-    ###
-    ###
-    ###
-    try:
-        dbConn = getConnection()
-        dbCursor = dbConn.cursor()
-        with dbConn:
-            
-            sql = ''' INSERT INTO t_pitemp(timestamp,temperature) VALUES(?,?) '''
-            result = dbCursor.execute(sql,(getTimeStamp(),getPiTemp()))
-
-    except Error as e:
-
-        logging.error("Unable to update database %s" %e)
-        
-
-
-def getCpuUsage():
-    return psutil.cpu_percent(1)
-
-
-if __name__ == "__main__":
-    logging = initLogging()
-    logging.debug('Testing %s in standalone mode' %__file__)
-
-    tsOutput = getTimeStamp()
-    logging.debug('Current Timestamp %s' %str(tsOutput))
-
-    convTimeStamp = getTimeFromTimeStamp(int(tsOutput))
-    logging.debug('Time stamp converted %s' %convTimeStamp)
-
-    temp = getPiTemp()
-    logging.debug('Pi running at temperature %s ' %temp)
-
-    percent = getCpuUsage()
-    logging.debug("Pi cpu usage is %f" %percent)
-
-    databaseExists = str(doesDatabaseExist())
-    logging.debug("Database exists %s" %databaseExists)
-
-    createTable()
-    recordTemp()
-    rowCount = getTempResultCount()
-    logging.debug("Number of temp rows %i" %rowCount)
-
-    databaseExists = str(doesDatabaseExist())
-    logging.debug("Database exists %s" %databaseExists)
-    logging.debug('Everything passed')
-
-
-
-
