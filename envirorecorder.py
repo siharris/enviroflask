@@ -107,7 +107,7 @@ def getTimeStamp(timeStampString):
     ###
     ###
     ###
-    timeStamp = datetime.datetime.strptime(timeStampString, "%Y-%m-%d %H:%M:%S").timestamp()
+    timeStamp = datetime.strptime(timeStampString, "%Y-%m-%d %H:%M:%S").timestamp()
     app.logger.debug('Current timestamp %s' %timeStamp)
     return timeStamp
 
