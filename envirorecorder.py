@@ -54,7 +54,8 @@ def add():
         humidity = readings["humidity"]
         temperature = readings["temperature"]
         pm1 = readings["pm1"]
-        timestamp = getTimeStamp()
+        timestampRaw = jsonResult["timestamp"]
+        timestamp = getTimeStamp(timestampRaw)
         ###
         dbConn = getConnection()
         dbCursor = getConnection().cursor()
@@ -102,12 +103,11 @@ def getConnection():
     conn = sqlite3.connect(getDatabaseFilePath(), isolation_level=None) 
     return conn
 
-def getTimeStamp():
+def getTimeStamp(timeStampString):
     ###
     ###
     ###
-    curr_dt = datetime.now()
-    timeStamp = str(int(round(curr_dt.timestamp())))
+    timeStamp = str(int(round(datetime.timestamp(timeStampString))))
     logging.debug('Current timestamp %s' %timeStamp)
     return timeStamp
 
