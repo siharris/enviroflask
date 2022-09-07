@@ -119,3 +119,7 @@ def getTimeFromTimeStamp(timeStamp):
     timeStamp2.strftime('%Y-%m-%d %H:%M:%S')
     app.logger.debug('Returning normal time from timestamp %s' %timeStamp2)
     return timeStamp2
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
