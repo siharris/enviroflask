@@ -48,16 +48,64 @@ def getConnection():
     return conn
 
 
+def getTimeFromTimeStamp(timeStamp):
+    ###
+    ###
+    ###
+    timeStamp2 = datetime.fromtimestamp(timeStamp)
+    timeStamp2.strftime('%Y-%m-%d %H:%M:%S')
+    logger.debug('Returning normal time from timestamp %s' %timeStamp2)
+    return timeStamp2
+
+def getTimeStamp(timeStampString):
+    ###
+    ###
+    ###
+    timeStamp = datetime.strptime(timeStampString, "%Y-%m-%d %H:%M:%S").timestamp()
+    logger.debug('Current timestamp %s' %timeStamp)
+    return timeStamp
+
+
+def getTimeStampDay(timeStampString):
+    ###
+    ###
+    ###
+    timeStampDay = datetime.strptime(timeStampString, "%Y-%m-%d").timestamp()
+    logger.debug('Current timestamp %s' %timeStampDay)
+    return timeStampDay
+
 if __name__ == "__main__":
     logging = initLogging()
+
+    logging.debug(f"Arguments count: {len(sys.argv)}")
+    for i, arg in enumerate(sys.argv):
+        logging.debug(f"Argument {i:>6}: {arg}")
+
+    if(len(sys.argv) > 1):
+        dateFrom = sys.argv[1]
+        logging.debug("DateFrom %s",dateFrom)
+        queryString = ('SELECT * FROM t_enviro WHERE timestamp > %s;' %int(getTimeStampDay(dateFrom)))    
+    else:
+        queryString = ('SELECT * FROM t_enviro')    
+
     logging.debug('Reading EnviroDB %s ' %__file__)
+    logging.debug("sql script %s",queryString)
     dbConn = getConnection()
     dbCursor = getConnection().cursor()
 
-
+    # 
     # The result of a "cursor.execute" can be iterated over by row
-    for row in dbCursor.execute('SELECT * FROM t_enviro;'):
-        logging.debug(row)
+    # timestamp,pressure,pm2_5,pm10,noise,humidity,temperature,pm1) 
+    for row in dbCursor.execute(queryString):
+        logging.info("TimeStamp %s" %getTimeFromTimeStamp(row[0]))
+        logging.info("Pressure %s" %str(row[1]))
+        logging.info("pm2_5 %s" %str(row[2]))
+        logging.info("pm10 %s" %str(row[3]))
+        logging.info("noise %s" %str(row[4]))
+        logging.info("humidity %s" %str(row[5]))
+        logging.info("temperature %s" %str(row[6]))
+        logging.info("pm1 %s" %str(row[7]))
+
 
    
 
