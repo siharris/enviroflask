@@ -3,17 +3,15 @@ from flask import current_app, flash, jsonify, make_response, redirect, request,
 from asyncio.log import logger
 from os.path import exists
 from datetime import datetime
+from socket import create_connection
+from tempfile import gettempdir
 
 import logging
-from socket import create_connection
 import sys
 import platform
-from tempfile import gettempdir
 import os.path
 import sqlite3
 import sys
-
-
 import time
 import platform
 
@@ -28,7 +26,23 @@ DATABASE = "enviro.db"
 logging.basicConfig(filename='envirorecorder.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 
-
+###
+### import urequests
+###
+###  auth = None
+###  if config.custom_http_username:
+###    auth = (config.custom_http_username, config.custom_http_password)
+###
+###  try:
+###    # post reading data to http endpoint
+###   result = urequests.post(url, auth=auth, json=reading)
+###    result.close()
+###    return result.status_code in [200, 201, 202]
+###  except:
+###    pass      
+###
+###  return False
+###
 @app.route("/posts/", methods=['POST'])
 def add():
     content_type = request.headers.get('Content-Type')
@@ -122,4 +136,4 @@ def getTimeFromTimeStamp(timeStamp):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0:5000')
