@@ -14,6 +14,7 @@ import sqlite3
 import sys
 import time
 import platform
+import json
 
 app = Flask(__name__)
 
@@ -27,7 +28,7 @@ logging.basicConfig(filename='envirorecorder.log', level=logging.DEBUG, format=f
 ### TODO 1) Added the nickname for the device so the service can deal with multiple devices not just one 
 ### TODO 2) At a retrieve interface to get data for a data range 
 ### TODO 3) Change post method to record 
-### TODO 4) Add query interface 
+### DONE 4) Add query interface 
 ### TODO 5) Add a register interface 
 ### TODO 6) Put in swagger interface 
 ### TODO 7) Put through pylint process 
@@ -118,12 +119,51 @@ def add():
 @app.route('/query', methods=['GET'])
 def query():
     args = request.args
-    return args
+    if len(args) == 0:
+        return jsonify(getReadingsCount())
+    else:
+        dateFrom = request.args.get('range')
+        return jsonify(getReadingStartingFrom(dateFrom))
+
+   
        
 def getDatabaseFilePath():
     return "%s//%s"% (os.getcwd() , DATABASE )
         
+
+def getReadingsCount():
+
+    
+    queryString = ('SELECT count(*) FROM t_enviro')    
+    logging.debug('Reading EnviroDB %s ' %__file__)
+    logging.debug("sql script %s",queryString)
+    dbConn = getConnection()
+    dbCursor = getConnection().cursor()
+    dbCursor.execute(queryString)
+    row = dbCursor.fetchone()
+    count = row[0]
+    result = {"count":str(count)}
+    return result
+
+def getReadingStartingFrom(dateFrom):
+    
+    logging.debug("Extracting DateFrom %s",dateFrom)
+    queryString = ('SELECT * FROM t_enviro WHERE timestamp > %s;' %int(getTimeStampDay(dateFrom)))     
+    logging.debug('Reading EnviroDB %s ' %__file__)
+    logging.debug("sql script %s",queryString)
+    dbConn = getConnection()
+    dbCursor = getConnection().cursor()
+    dbCursor.execute(queryString)
         
+    cnt=0
+    result = {}
+    for row in dbCursor.execute(queryString):
+        result[cnt] = {"TimeStamp": getTimeFromTimeStamp(row[0]) , "Pressure": str(row[1]),"pm2_5" : str(row[2]) ,"pm10" : str(row[3]) ,
+        "noise" : str(row[4]), "humidity" : str(row[5]),"temperature" :str(row[6]),"pm1" : str(row[7])}
+        cnt=cnt+1
+    return result
+
+
 def getConnection():
     ###
     ###
@@ -148,6 +188,13 @@ def getTimeFromTimeStamp(timeStamp):
     app.logger.debug('Returning normal time from timestamp %s' %timeStamp2)
     return timeStamp2
 
+def getTimeStampDay(timeStampString):
+    ###
+    ###
+    ###
+    timeStampDay = datetime.strptime(timeStampString, "%Y-%m-%d").timestamp()
+    app.logger.debug('Current timestamp %s' %timeStampDay)
+    return timeStampDay
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0:5000')
+    app.run(host="0.0.0.0",port=5000)
