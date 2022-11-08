@@ -18,14 +18,25 @@ import platform
 app = Flask(__name__)
 
 __author__ = 'Simon'
-
-
 DATABASE = "enviro.db"
 
 
 logging.basicConfig(filename='envirorecorder.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
+###  
+### TODO 1) Added the nickname for the device so the service can deal with multiple devices not just one 
+### TODO 2) At a retrieve interface to get data for a data range 
+### TODO 3) Change post method to record 
+### TODO 4) Add query interface 
+### TODO 5) Add a register interface 
+### TODO 6) Put in swagger interface 
+### TODO 7) Put through pylint process 
+### TODO 8) Add Doxygen 
+### TODO 9) Put in a config file for location , database , port 
+### TODO 10) Add Authentication mechanism 
+###
 
+###
 ###
 ### import urequests
 ###
@@ -104,7 +115,10 @@ def add():
 
     return jsonify({"success": "Successfully recorded reading."})
 
-
+@app.route('/query', methods=['GET'])
+def query():
+    args = request.args
+    return args
        
 def getDatabaseFilePath():
     return "%s//%s"% (os.getcwd() , DATABASE )
