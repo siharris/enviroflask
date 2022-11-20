@@ -14,7 +14,7 @@ import sys
 import time
 import platform
 
-__author__ = 'Simon'
+__author__ = 'simond4'
 
 
 DATABASE = "enviro.db"
@@ -47,20 +47,6 @@ def getConnection():
     conn = sqlite3.connect(getDatabaseFilePath(), isolation_level=None) 
     return conn
 
-###
-###2022-09-05 17:48:09,749 DEBUG envirorecorder Thread-5 : <class 'dict'>
-###2022-09-05 17:48:09,750 DEBUG envirorecorder Thread-5 : readings
-###2022-09-05 17:48:09,750 DEBUG envirorecorder Thread-5 : nickname
-###2022-09-05 17:48:09,751 DEBUG envirorecorder Thread-5 : timestamp
-###2022-09-05 17:48:09,751 DEBUG envirorecorder Thread-5 : nickname enviropi-01
-###2022-09-05 17:48:09,752 DEBUG envirorecorder Thread-5 : key pressure value 1010.37
-###2022-09-05 17:48:09,752 DEBUG envirorecorder Thread-5 : key pm2_5 value 24
-###2022-09-05 17:48:09,753 DEBUG envirorecorder Thread-5 : key pm10 value 34
-###2022-09-05 17:48:09,754 DEBUG envirorecorder Thread-5 : key noise value 1.5
-###2022-09-05 17:48:09,754 DEBUG envirorecorder Thread-5 : key humidity value 53.01
-###2022-09-05 17:48:09,755 DEBUG envirorecorder Thread-5 : key temperature value 27.62
-###2022-09-05 17:48:09,755 DEBUG envirorecorder Thread-5 : key pm1 value 8
-###2022-09-05 17:48:09,756 ERROR envirorecorder Thread-5 : Exception on /posts/ [POST]
 
 if __name__ == "__main__":
     logging = initLogging()

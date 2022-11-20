@@ -14,7 +14,7 @@ import sys
 import time
 import platform
 
-__author__ = 'Simon'
+__author__ = 'simond4'
 
 
 DATABASE = "enviro.db"
@@ -83,9 +83,10 @@ if __name__ == "__main__":
 
     if(len(sys.argv) > 1):
         dateFrom = sys.argv[1]
-        logging.debug("DateFrom %s",dateFrom)
+        logging.debug("Extracting DateFrom %s",dateFrom)
         queryString = ('SELECT * FROM t_enviro WHERE timestamp > %s;' %int(getTimeStampDay(dateFrom)))    
     else:
+        logging.debug("Extracting all data")
         queryString = ('SELECT * FROM t_enviro')    
 
     logging.debug('Reading EnviroDB %s ' %__file__)
