@@ -113,11 +113,17 @@ def query():
     Parameters 
     ----------
 
-    Takes dateFrom=
+    http://localhost:5000/query?dateFrom=2022-11-01&dateTo=2022-11-02
+
+    dateFrom=YYYY-MM-DD
+    dataTo=YYYY-MM-DD
 
 
     Returns
     -------
+
+    returns a json dictionary for the readings for that data range 
+
 
     """
     args = request.args
@@ -144,17 +150,20 @@ def getReadingsCount():
     returns a count of the number of records 
     
     """
-    
-    queryString = ('SELECT count(*) FROM t_enviro')    
-    logging.debug('Reading EnviroDB %s ' %__file__)
-    logging.debug("sql script %s",queryString)
+    try:
+        queryString = ('SELECT count(*) FROM t_enviro')    
+        logging.debug('Reading EnviroDB %s ' %__file__)
+        logging.debug("sql script %s",queryString)
 
-    dbCursor = getConnection().cursor()
-    dbCursor.execute(queryString)
-    row = dbCursor.fetchone()
-    count = row[0]
-    result = {"count":str(count)}
-    return result
+        dbCursor = getConnection().cursor()
+        dbCursor.execute(queryString)
+        row = dbCursor.fetchone()
+        count = row[0]
+        result = {"count":str(count)}
+        return result
+
+    except Exception as e:
+        logging.error(e)
 
 def getReading(dateFrom,dateTo):
     """ Gets Reading from sqlite database 
